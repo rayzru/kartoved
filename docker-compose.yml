@@ -1,0 +1,169 @@
+# ============================================================================
+# Docker Compose для локальной разработки BuyWhyWhy (Кэшка)
+# ============================================================================
+#
+# Сервисы:
+# 1. postgres - PostgreSQL 16 database
+# 2. backend - Node.js/TypeScript микросервис (AI, OCR, sync, API)
+# 3. pgadmin - Web UI для управления PostgreSQL (опционально)
+#
+# Запуск:
+#   docker-compose up -d          # Запустить все сервисы
+#   docker-compose up postgres    # Только БД
+#   docker-compose logs -f backend # Логи backend
+#   docker-compose down           # Остановить все
+#
+# ============================================================================
+
+version: '3.8'
+
+services:
+  # ==========================================================================
+  # PostgreSQL Database (для локальной разработки вместо Supabase)
+  # ==========================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: buywhywhy-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: buywhywhy
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_dev_password_change_me
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+      # Для production обязательно использовать сильный пароль!
+
+    ports:
+      - "5432:5432"  # PostgreSQL port
+
+    volumes:
+      # Персистентность данных
+      - postgres_data:/var/lib/postgresql/data
+
+      # Auto-init: применить schema при первом запуске
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./database/seed_mcc_codes.sql:/docker-entrypoint-initdb.d/02-seed-mcc.sql:ro
+      - ./database/seed_russian_banks.sql:/docker-entrypoint-initdb.d/03-seed-banks.sql:ro
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d buywhywhy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    networks:
+      - buywhywhy-network
+
+  # ==========================================================================
+  # Backend Микросервис (Node.js + TypeScript)
+  # ==========================================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development  # Multi-stage build: development | production
+
+    container_name: buywhywhy-backend
+    restart: unless-stopped
+
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+
+      # Database connection
+      DATABASE_URL: postgresql://postgres:postgres_dev_password_change_me@postgres:5432/buywhywhy
+
+      # JWT secrets (для production использовать secrets manager)
+      JWT_SECRET: dev_jwt_secret_change_for_production
+      JWT_REFRESH_SECRET: dev_refresh_secret_change_for_production
+
+      # VK OAuth (получить на https://dev.vk.com)
+      VK_APP_ID: ${VK_APP_ID:-}
+      VK_SECURE_KEY: ${VK_SECURE_KEY:-}
+
+      # Yandex OAuth (получить на https://oauth.yandex.ru)
+      YANDEX_CLIENT_ID: ${YANDEX_CLIENT_ID:-}
+      YANDEX_CLIENT_SECRET: ${YANDEX_CLIENT_SECRET:-}
+
+      # AWS для OCR fallback (опционально)
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_REGION: eu-central-1
+
+      # Yandex Cloud для OCR/AI (опционально)
+      YANDEX_CLOUD_API_KEY: ${YANDEX_CLOUD_API_KEY:-}
+      YANDEX_FOLDER_ID: ${YANDEX_FOLDER_ID:-}
+
+    ports:
+      - "3000:3000"  # API port
+
+    volumes:
+      # Hot reload для локальной разработки
+      - ./backend/src:/app/src:ro
+      - ./backend/package.json:/app/package.json:ro
+      - ./backend/tsconfig.json:/app/tsconfig.json:ro
+
+      # Node modules (не перезаписывать из хоста)
+      - backend_node_modules:/app/node_modules
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    networks:
+      - buywhywhy-network
+
+  # ==========================================================================
+  # pgAdmin 4 (Web UI для PostgreSQL) - ОПЦИОНАЛЬНО
+  # ==========================================================================
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: buywhywhy-pgadmin
+    restart: unless-stopped
+
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@buywhywhy.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'  # Desktop mode
+
+    ports:
+      - "5050:80"  # pgAdmin web UI
+
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+    depends_on:
+      - postgres
+
+    networks:
+      - buywhywhy-network
+
+    profiles:
+      - tools  # Не запускается по умолчанию, только: docker-compose --profile tools up
+
+# ============================================================================
+# Docker Volumes (Персистентность данных)
+# ============================================================================
+volumes:
+  postgres_data:
+    driver: local
+
+  backend_node_modules:
+    driver: local
+
+  pgadmin_data:
+    driver: local
+
+# ============================================================================
+# Docker Networks
+# ============================================================================
+networks:
+  buywhywhy-network:
+    driver: bridge

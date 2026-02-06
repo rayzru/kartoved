@@ -1,0 +1,79 @@
+# ============================================================================
+# Git Ignore - BuyWhyWhy (Кэшка)
+# ============================================================================
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+
+# Docker
+docker-compose.override.yml
+
+# Backend specific
+backend/dist/
+backend/logs/
+
+# React Native
+.expo/
+.expo-shared/
+ios/Pods/
+ios/build/
+android/.gradle/
+android/app/build/
+android/build/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Secrets (никогда не коммитить!)
+secrets/
+*.pem
+*.cert
+*.key
+google-services.json
+GoogleService-Info.plist
+
+# Claude Code - local plans and state (не коммитить)
+.claude/plans/*.md
+.claude/plans/.archive/
+.claude/.state
+.claude/.credentials.json
+
+# Claude Code - agents (коммитим, это часть проекта!)
+# .claude/agents/ - NOT ignored, должны быть в git
