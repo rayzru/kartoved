@@ -1,97 +1,129 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Картовед - Mobile App
 
-# Getting Started
+React Native приложение для агрегации кешбэк-предложений банковских карт.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+**Версия:** 0.1.0-alpha  
+**React Native:** 0.83.1  
+**Target:** iOS 14+ • Android 12+
 
-## Step 1: Start Metro
+## 🚀 Быстрый старт
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+### Требования
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+- Node.js 20+
+- iOS: Xcode 15+, macOS
+- Android: Android Studio, JDK 17+
 
-```sh
-# Using npm
-npm start
+### Установка
 
-# OR using Yarn
-yarn start
+```bash
+npm install
+
+# iOS (только macOS)
+cd ios && pod install && cd ..
 ```
 
-## Step 2: Build and run your app
+### Запуск
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
-```
-
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
+**iOS Simulator:**
+```bash
 npm run ios
-
-# OR using Yarn
-yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+**Android Emulator:**
+```bash
+npm run android
+```
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+**Metro Bundler:**
+```bash
+npm start
+```
 
-## Step 3: Modify your app
+## 📁 Структура проекта
 
-Now that you have successfully run the app, let's make changes!
+```
+src/
+├── components/      # Переиспользуемые UI компоненты
+├── screens/         # Экраны приложения
+│   ├── HomeScreen.tsx        # 🏠 Главная (виджет рекомендации)
+│   ├── CardsScreen.tsx       # 💳 Мои карты
+│   ├── AnalyticsScreen.tsx   # 📊 Статистика кешбэка
+│   └── SettingsScreen.tsx    # ⚙️ Настройки
+├── navigation/      # Navigation setup
+│   ├── RootNavigator.tsx     # Root stack navigator
+│   ├── TabNavigator.tsx      # Bottom tabs (4 экрана)
+│   └── types.ts              # Navigation types
+├── store/           # Zustand state management (TODO)
+├── database/        # WatermelonDB models (TODO)
+├── services/        # Business logic (TODO)
+├── lib/             # Utilities & API client (TODO)
+└── types/           # TypeScript types (TODO)
+```
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+## 🛠 Технологический стек
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+**Core:**
+- React Native 0.83.1
+- TypeScript 5.x (strict mode)
+- Hermes Engine
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+**Navigation:**
+- React Navigation 7.1 (Native Stack + Bottom Tabs)
 
-## Congratulations! :tada:
+**State Management:**
+- Zustand 5.0 - local UI state
+- React Query 5.90 - server state & caching
 
-You've successfully run and modified your React Native App. :partying_face:
+**UI Components:**
+- React Native Paper 5.15 - Material Design
+- React Native Safe Area Context
 
-### Now what?
+**Local Database:**
+- WatermelonDB 0.28 - SQLite wrapper (offline-first)
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+## 🎯 Текущий статус
 
-# Troubleshooting
+### ✅ Завершено
+- [x] React Native project initialization
+- [x] TypeScript strict mode setup
+- [x] Navigation (Tab + Stack navigators)
+- [x] 4 базовых экрана (Home, Cards, Analytics, Settings)
+- [x] Permissions (iOS + Android)
+- [x] App branding ("Картовед")
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+### 🔄 В работе
+- [ ] WatermelonDB integration
+- [ ] API Client setup
+- [ ] Authentication flow (VK ID + Yandex ID)
 
-# Learn More
+### 📋 Следующие шаги
+- [ ] Widget implementation (iOS WidgetKit + Android Glance)
+- [ ] Location detection service (WiFi/Bluetooth/NFC/GPS)
+- [ ] OCR для скриншотов банковских приложений
 
-To learn more about React Native, take a look at the following resources:
+## 🔗 Ссылки
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+- [Backend API](../backend/) - Node.js + Express + PostgreSQL
+- [Database Schemas](../database/) - SQL schemas и seed data
+- [Agent Framework](../.claude/agents/) - 10 специализированных агентов
+- [React Native Initialization Plan](../.claude/plans/react-native-initialization.md)
+
+## 🐛 Troubleshooting
+
+**Metro bundler не запускается:**
+```bash
+npm start -- --reset-cache
+```
+
+**iOS build fails:**
+```bash
+cd ios && pod install && cd ..
+npm run ios
+```
+
+**Android build fails:**
+```bash
+cd android && ./gradlew clean && cd ..
+npm run android
+```
