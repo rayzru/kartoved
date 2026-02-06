@@ -1,8 +1,9 @@
 import axios from 'axios';
+import Config from 'react-native-config';
 
-// API Base URL (from .env)
-const API_URL = process.env.API_URL || 'http://localhost:3000';
-const API_TIMEOUT = Number(process.env.API_TIMEOUT) || 10000;
+// API Base URL (from .env via react-native-config)
+const API_URL = Config.API_URL || 'http://localhost:3000';
+const API_TIMEOUT = Number(Config.API_TIMEOUT) || 10000;
 
 /**
  * Axios instance with default config
@@ -20,11 +21,22 @@ export const api = axios.create({
  */
 api.interceptors.request.use(
   (config) => {
-    // TODO: Add JWT token from auth store
-    // const token = useAuthStore.getState().token;
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
+    // FIX: Attach JWT token from auth store
+    // Note: Import at top of file after stores are defined
+    // For now, we'll import dynamically to avoid circular dependency
+    try {
+      // @ts-ignore - dynamic import to avoid circular dependency during init
+      const { useAuthStore } = require('../store/useAuthStore');
+      const token = useAuthStore.getState().token;
+
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (error) {
+      // Store not yet initialized (during app startup)
+      console.warn('Auth store not available for token injection');
+    }
+
     return config;
   },
   (error) => {

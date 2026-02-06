@@ -6,7 +6,7 @@ import { useMerchantDetection } from '../lib/hooks';
 
 export default function HomeScreen() {
   const [detectionTime, setDetectionTime] = useState<number | null>(null);
-  const { mutate: detectMerchant, data, isLoading, error } = useMerchantDetection();
+  const { mutateAsync: detectMerchantAsync, data, isLoading, error } = useMerchantDetection();
 
   const handleDetect = async () => {
     const startTime = Date.now();
@@ -15,8 +15,9 @@ export default function HomeScreen() {
       // 1. Detect location (WiFi/Bluetooth/NFC/GPS cascade)
       const location = await locationService.detectLocation();
 
-      // 2. Call backend merchant detection API
-      detectMerchant({
+      // 2. Call backend merchant detection API and AWAIT response
+      // FIX: Use mutateAsync to measure full end-to-end timing
+      await detectMerchantAsync({
         wifi_ssid: location.wifiSsid,
         wifi_bssid: location.wifiBssid,
         wifi_rssi: location.wifiRssi,
@@ -29,6 +30,7 @@ export default function HomeScreen() {
         gps_accuracy: location.gpsAccuracy,
       });
 
+      // NOW measure elapsed time after full round-trip
       const elapsed = Date.now() - startTime;
       setDetectionTime(elapsed);
     } catch (error) {

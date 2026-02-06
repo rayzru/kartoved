@@ -113,15 +113,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
         // TODO: Validate token with backend
         // const user = await validateToken(token);
+        // For now, do NOT set isAuthenticated until user is validated
 
         set({
           token,
-          // user, // TODO: uncomment after backend validation
-          isAuthenticated: true,
+          isAuthenticated: false, // FIX: Don't authenticate without validated user
           isLoading: false,
         });
 
-        console.log('Stored auth loaded successfully');
+        console.log('Token loaded but user validation required');
       } else {
         set({ isLoading: false });
         console.log('No stored credentials found');

@@ -63,6 +63,13 @@ export const useCardsStore = create<CardsState>((set, get) => ({
     try {
       set({ isLoading: true });
 
+      // PCI COMPLIANCE: Validate last 4 digits only (CRITICAL SECURITY)
+      if (!/^\d{4}$/.test(data.lastFourDigits)) {
+        throw new Error(
+          'Invalid card format: Only last 4 digits allowed (PCI-DSS compliance)'
+        );
+      }
+
       const card = await database.write(async () => {
         return await database.get<BankCard>('bank_cards').create((card) => {
           card.bankName = data.bankName;
